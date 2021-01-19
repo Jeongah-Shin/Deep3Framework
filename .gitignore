@@ -1,3 +1,9 @@
+# IDE
+.idea/
+
+# OS
+*.DS_Store
+
 # env
 deep3-env/
 
