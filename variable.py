@@ -2,7 +2,40 @@ import numpy as np
 
 class Variable:
     def __init__(self, data):
+        # 아래의 두 값은 모두 numpy의 다차원 배열(ndarray)이라고 가정
+        # 통상값 (data)
         self.data = data
+        # 미분값 (grad), 실제로 역전파를 하면 미분값을 계산하여 대입
+        self.grad = None
+        self.creator = None
+    def set_creator(self, func):
+        self.creator = func
+    # 재귀를 이용한 구현
+    def backward_recursion(self):
+        # 1_함수를 가져온다.
+        f = self.creator
+        # creator가 없으면 역전파 중단
+        # creator가 없다는 것은 해당 Variable은 함수 바깥에서 생성 되었음(사용자 력)을 의미
+        if f is not None:
+            # 2_함수의 입력을 가져온다.
+            x = f.input
+            # 3_함수의 backward 메서드를 호출한다.
+            x.grad = f.backward(self.grad)
+            # 하나 앞 변수의 backward 메서드를 호출한다(재귀)
+            x.backward()
+    # 반복문을 이용한 구현
+    def backward(self):
+        funcs = [self.creator]
+        while funcs:
+            # 1_함수를 가져온다.
+            f = funcs.pop()
+            # 2_ 함수의 입력과 출력을 가져온다.
+            x,y = f.input, f.output
+            x.grad = f.backward(y.grad)
+
+            if x.creator is not None:
+                # 하나 앞의 함수를 리스트에 추가한다.
+                funcs.append(x.creator)
 
 if __name__ == '__main__':
     data = np.array(1.0)

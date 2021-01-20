@@ -5,29 +5,47 @@ import numpy as np
 # 구체적인 함수는 Function 클래스를 상속한 클래스에서 구현
 
 class Function:
-    # input 은 Variable 인스턴스라고 가
+    # input 은 Variable 인스턴스라고 가정
     def __call__(self, input):
         # 데이터 꺼내기
         x = input.data
         y = self.forward(x)
         output = v.Variable(y)
+        # 출력 변수에 창조자를 설정
+        output.set_creator(self)
+        # 입력 변수를 보관해놨다가 역전파시 사용
+        self.input = input
+        # 출력도 저장
+        self.output = output
         return output
 
     def forward(self, x):
         # 해당 메서드는 상속하여 구해야 한다.
         raise NotImplementedError()
-
+    def backward(self, gy):
+        raise NotImplementedError()
 
 class Square(Function):
     # Function 클래스를 상속하기 때문에
     # __call__ 메서드는 그대로 계승
     def forward(self, x):
-        return x ** 2
+        y = x ** 2
+        return y
+    # gy 는 ndarray 인스턴스
+    def backward(self, gy):
+        x = self.input.data
+        gx = 2 * x * gy
+        return gx
 
 
 class Exp(Function):
     def forward(self, x):
-        return np.exp(x)
+        y = np.exp(x)
+        return y
+    def backward(self, gy):
+        x = self.input.data
+        gx = np.exp(x) * gy
+        return gx
 
 # 미세한 차리를 이용하여 함수의 변화량을 구하는 방법을 '수치 미분(numercial differentiation)'이라고 한다.
 # 아무리 작은 값을 사용하여도 오차가 발생 할 수 있음 -> '중앙 차분(centered difference)'을 통해 근사 오차를 줄임.
@@ -95,4 +113,52 @@ if __name__ == '__main__':
     x4 = v.Variable(np.array(0.5))
     dy4 = num_diff(comp_func, x4)
     print(dy4)
+    print("\n")
+
+    # 역전파 (함수 연결 이용)
+    print("backprop")
+    y.grad = np.array(1.0)
+    # b.grad = C.backward(y.grad)
+    # a.grad = B.backward(b.grad)
+    # x.grad = A.backward(a.grad)
+    # print(x.grad)
+    print("\n")
+
+    # Backtrace
+    print("backtrace")
+    # 평가 결과가 true가 아니면 예외가 발
+    assert y.creator == C
+    assert y.creator.input == b
+    assert y.creator.input.creator == B
+    assert y.creator.input.creator.input == a
+    assert y.creator.input.creator.input.creator == A
+    assert y.creator.input.creator.input.creator.input == x
+    print("\n")
+
+    # 역전파 도전
+    print("backprop 2nd")
+    # 작동 순
+    # 1_함수를 가져온다.
+    # 2_함수의 입력을 가져온다.
+    # 3_함수의 backward 메서드를 호출한다.
+
+    # C = y.creator
+    # b = C.input
+    # b.grad = C.backward(y.grad)
+    #
+    # B = b.creator
+    # a = B.input
+    # a.grad = B.backward(b.grad)
+    #
+    # A = a.creator
+    # x = A.input
+    # x.grad = A.backward(a.grad)
+    #
+    # print(x.grad)
+    print("\n")
+
+    # 역전파 자동화
+    print("backprop auto")
+    y.backward()
+    print(x.grad)
     print("\n")
