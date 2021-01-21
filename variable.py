@@ -2,6 +2,10 @@ import numpy as np
 
 class Variable:
     def __init__(self, data):
+        # ndarray가 아닌 타입이 들어왔을 때에 대한 예외 처리
+        if data is not None:
+            if not isinstance(data, np.ndarray):
+                raise TypeError('{}의 타입은 지원하지 않습니다.'.format(type(data)))
         # 아래의 두 값은 모두 numpy의 다차원 배열(ndarray)이라고 가정
         # 통상값 (data)
         self.data = data
@@ -25,6 +29,12 @@ class Variable:
             x.backward()
     # 반복문을 이용한 구현
     def backward(self):
+        if self.grad is None:
+            # self.data 와 같은 형상으로 ndarray 인스턴스 생성
+            # 모든 요소를 1로 채워서 돌려줌.
+            # self.data가 스칼라이면 self.grad도 스칼라!
+            self.grad = np.ones_like(self.data)
+
         funcs = [self.creator]
         while funcs:
             # 1_함수를 가져온다.

@@ -61,3 +61,29 @@
 >
 > → 분기가 있는 계산 그래프에의 응용을 위한 웬거트 리스트( Wengert List)
 
+### ➡️ Python Unit Test
+
+```python
+python -m unittest test.py
+
+# 특정 디렉토리 아래 모두를 실행하고 싶으면
+python -m unittest discover <dir_name>
+```
+
+**✨ 컴퓨터 프로그램에서 미분을 계산하는 방법**
+
+- Numercial Differentiation (수치 미분)
+
+  변수에 미세한 차이를 주어 일반적인 계산(순전파) 2회 시행 후 출력의 차이로부터 근사적으로 미분을 계산, 다량의 변수를 사용하느 함수를 다룰 때의 계산 비용이 높음.
+
+- Symbolic Differentiation (기호 미분)
+
+  공식으로 계산, 최적화를 고혀하지 않고 구현하면 수식이 곧바로 거대해질 우려가 있음.
+
+- Automatic Differentiation (자동 미분)
+
+  연쇄 법칙의 사용
+
+  - forward mode
+  - reverse mode == 역전파
+
