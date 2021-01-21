@@ -52,7 +52,9 @@ class Square(Function):
         return y
     # gy 는 ndarray 인스턴스
     def backward(self, gy):
-        x = self.input.data
+        # x = self.input.data
+        # 가변 길이 인수 지원하도록 수정
+        x = self.inputs[0].data
         gx = 2 * x * gy
         return gx
 
@@ -70,6 +72,9 @@ class Add(Function):
     def forward(self, x0, x1):
         y = x0 + x1
         return y
+    def backward(self, gy):
+        # 출력쪽에서 전해지는 미분값에 1을 곱한 값 == 그대로 흘려보내는 것
+        return gy, gy
 
 # 미세한 차리를 이용하여 함수의 변화량을 구하는 방법을 '수치 미분(numercial differentiation)'이라고 한다.
 # 아무리 작은 값을 사용하여도 오차가 발생 할 수 있음 -> '중앙 차분(centered difference)'을 통해 근사 오차를 줄임.
@@ -219,4 +224,26 @@ if __name__ == '__main__':
     # y = f(x0, x1)
     y = add(x0, x1)
     print(y.data)
+    print("\n")
+
+    # Square 클래스에도 가변길이 인수 적용
+    print("Multiple inputs application on Square class")
+    x13 = v.Variable(np.array(2.0))
+    y13 = v.Variable(np.array(3.0))
+
+    z13 = add(square(x13), square(y13))
+    z13.backward()
+
+    print(z13.data)
+    print(x13.grad)
+    print(y13.grad)
+    print("\n")
+
+    # 같은 변수 반복 사용
+    print("Repetitive usage of same variables")
+    x14 = v.Variable(np.array(3.0))
+    y14 = add(add(x14, x14), x14)
+
+    y14.backward()
+    print('x.grad', x14.grad)
     print("\n")

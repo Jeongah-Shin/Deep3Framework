@@ -87,3 +87,9 @@ python -m unittest discover <dir_name>
   - forward mode
   - reverse mode == 역전파
 
+### ➡️ Partial Derivative
+
+Partial Derivative(편미분)은 입력 변수가 여러개인 다변수 함수에서 하나의 입력 변수에만 주목하여(다른 변수는 상수로 취급) 미분하는 것을 뜻함.
+$$
+{\partial y \over \partial x_0} = 1, {\partial y \over \partial x_1} =1
+$$
