@@ -86,3 +86,4 @@ python -m unittest discover <dir_name>
 
   - forward mode
   - reverse mode == 역전파
+

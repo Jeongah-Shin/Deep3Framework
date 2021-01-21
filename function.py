@@ -7,20 +7,30 @@ import test as t
 
 class Function:
     # input 은 Variable 인스턴스라고 가정
-    def __call__(self, input):
-        # 데이터 꺼내기
-        x = input.data
-        y = self.forward(x)
+    # * notation을 통해 가변 길이 인수를 건네 함수를 호출
+    def __call__(self, *inputs):
+        # 데이터 꺼내기, List Comprehension(리스트 내포) 사용
+        xs = [x.data for x in inputs]
+        # *xs ---> List Unpack(리스트 언팩)
+        # 리스트 원소를 낱개로 풀어서 전달하는 기법
+        # xs = [x0, x1]일 때 self.forward(*xs)는 self.forward(x0, x1)과 같다.
+        ys = self.forward(*xs)
+        # ys가 튜플이 아닌 경우 튜플로 변경
+        if not isinstance(ys, tuple):
+            ys = (ys, )
         # 0차원의 x = ndarray - np.array(1.0)
         # x ** 2를 하면 np.float64 or np.float32로 리턴하는 문제 해결
-        output = v.Variable(as_array(y))
-        # 출력 변수에 창조자를 설정
-        output.set_creator(self)
+        outputs = [v.Variable(as_array(y)) for y in ys]
+
+        for output in outputs:
+            # 출력 변수에 창조자를 설정
+            output.set_creator(self)
         # 입력 변수를 보관해놨다가 역전파시 사용
-        self.input = input
+        self.inputs = inputs
         # 출력도 저장
-        self.output = output
-        return output
+        self.outputs = outputs
+        # outputs에 원소가 하나뿐이면 리스트가 아니라 그 원소(해당 변수)만 반환
+        return outputs if len(outputs) > 1 else outputs[0]
 
     def forward(self, x):
         # 해당 메서드는 상속하여 구해야 한다.
@@ -56,6 +66,11 @@ class Exp(Function):
         gx = np.exp(x) * gy
         return gx
 
+class Add(Function):
+    def forward(self, x0, x1):
+        y = x0 + x1
+        return y
+
 # 미세한 차리를 이용하여 함수의 변화량을 구하는 방법을 '수치 미분(numercial differentiation)'이라고 한다.
 # 아무리 작은 값을 사용하여도 오차가 발생 할 수 있음 -> '중앙 차분(centered difference)'을 통해 근사 오차를 줄임.
 
@@ -76,23 +91,20 @@ def comp_func(x):
     return C(B(A(x)))
 
 def square(x):
-    f = Square()
-    return f(x)
-
-def exp(x):
-    f = Exp()
-    return f(x)
-
-def brief_square(x):
+    # f = Square()
+    # return f(x)
     return Square()(x)
 
-def brief_exp(x):
-    return Exp()(x)
+def exp(x):
+    # f = Exp()
+    # return f(x)
+    return Square()(x)
+
+def add(x0, x1):
+    return Add()(x0, x1)
 
 if __name__ == '__main__':
-    # Unit Test 실행
-    # t.unittest.main()
-
+    """
     # Function
     # print("Function 실습 코드")
     # x1 = v.Variable(np.array(10))
@@ -179,7 +191,7 @@ if __name__ == '__main__':
     # A = a.creator
     # x = A.input
     # x.grad = A.backward(a.grad)
-    #b
+    #
     # print(x.grad)
     print("\n")
 
@@ -188,22 +200,23 @@ if __name__ == '__main__':
     y.backward()
     print(x.grad)
     print("\n")
+    
+    # 가변길이 인수 적용
+    print("Multiple inputs")
+    xs = [v.Variable(np.array(2)), v.Variable(np.array(3))]
+    f = Add()
+    ys = f(xs)
+    y = ys[0]
+    print(y.data)
+    print("\n")
+    """
 
-    # 함수를 편리하게!
-    print("func enhancement")
-    x9 = v.Variable(np.array(0.5))
-    # Type Error 테스트
-    # x9 = v.Variable(0.5)
-    # a9 = square(x9)
-    # b9 = exp(a9)
-    # y9 = square(b9)
-
-    # 연속해서 적용하기
-    y9 = square(exp(square(x9)))
-
-    # np.ones_like()으로 채웠으므로 생략 가능
-    # y9.grad = np.array(1.0)
-    y9.backward()
-
-    print(x9.grad)
+    # 가변길이 인수 적용 - enhancement
+    print("Multiple inputs - enhancement")
+    x0 = v.Variable(np.array(2))
+    x1 = v.Variable(np.array(3))
+    # f = Add()
+    # y = f(x0, x1)
+    y = add(x0, x1)
+    print(y.data)
     print("\n")
