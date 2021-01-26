@@ -214,7 +214,7 @@ if __name__ == '__main__':
     y = ys[0]
     print(y.data)
     print("\n")
-    """
+
 
     # 가변길이 인수 적용 - enhancement
     print("Multiple inputs - enhancement")
@@ -247,3 +247,15 @@ if __name__ == '__main__':
     y14.backward()
     print('x.grad', x14.grad)
     print("\n")
+    """
+    x143 = v.Variable(np.array(3.0))
+    y143 = add(x143, x143)
+    y143.backward()
+    print(x143.grad)
+
+    # 누적된 미분값 초기화
+    # 28단계 - 로젠브록 함수 최적화(함수의 최솟값과 최댓값을 찾는 문제)
+    x143.cleargrad()
+    y143 = add(add(x143,x143),x143)
+    y143.backward()
+    print(x143.grad)

@@ -22,6 +22,9 @@ class Variable:
 
         creator = self.creator
         return '\n\tVaraible - data: {}, grad: {}, creator: {}'.format(data, grad, creator)
+    def cleargrad(self):
+        # 여러가지 미분을 연달아 계산할 때 똑같은 변수 재사용 가능
+        self.grad = None
     def set_creator(self, func):
         self.creator = func
     # 재귀를 이용한 구현
