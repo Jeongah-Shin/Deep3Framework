@@ -21,6 +21,9 @@ class Function:
         # 0차원의 x = ndarray - np.array(1.0)
         # x ** 2를 하면 np.float64 or np.float32로 리턴하는 문제 해결
         outputs = [v.Variable(as_array(y)) for y in ys]
+        # 입련 변수의 generation을 그대로 수용하되,
+        # 입력 변수가 여러개라면, 가장 큰 generation 수를 채택
+        self.generation = max([x.generation for x in inputs])
 
         for output in outputs:
             # 출력 변수에 창조자를 설정

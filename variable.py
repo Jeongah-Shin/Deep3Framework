@@ -13,6 +13,8 @@ class Variable:
         # 미분값 (grad), 실제로 역전파를 하면 미분값을 계산하여 대입
         self.grad = None
         self.creator = None
+        # 세대 수를 기록하는 변수
+        self.generation = 0
     def __str__(self):
         data = np.array_str(self.data)
 
@@ -27,6 +29,8 @@ class Variable:
         self.grad = None
     def set_creator(self, func):
         self.creator = func
+        # 부모세대 + 1로 세대를 기록한다.
+        self.generation = func.generation + 1
     # 재귀를 이용한 구현
     def backward_recursion(self):
         # 1_함수를 가져온다.
