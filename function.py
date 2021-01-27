@@ -21,6 +21,9 @@ class Function:
         # 0차원의 x = ndarray - np.array(1.0)
         # x ** 2를 하면 np.float64 or np.float32로 리턴하는 문제 해결
         outputs = [v.Variable(as_array(y)) for y in ys]
+        # 입련 변수의 generation을 그대로 수용하되,
+        # 입력 변수가 여러개라면, 가장 큰 generation 수를 채택
+        self.generation = max([x.generation for x in inputs])
 
         for output in outputs:
             # 출력 변수에 창조자를 설정
@@ -52,7 +55,9 @@ class Square(Function):
         return y
     # gy 는 ndarray 인스턴스
     def backward(self, gy):
-        x = self.input.data
+        # x = self.input.data
+        # 가변 길이 인수 지원하도록 수정
+        x = self.inputs[0].data
         gx = 2 * x * gy
         return gx
 
@@ -70,6 +75,9 @@ class Add(Function):
     def forward(self, x0, x1):
         y = x0 + x1
         return y
+    def backward(self, gy):
+        # 출력쪽에서 전해지는 미분값에 1을 곱한 값 == 그대로 흘려보내는 것
+        return gy, gy
 
 # 미세한 차리를 이용하여 함수의 변화량을 구하는 방법을 '수치 미분(numercial differentiation)'이라고 한다.
 # 아무리 작은 값을 사용하여도 오차가 발생 할 수 있음 -> '중앙 차분(centered difference)'을 통해 근사 오차를 줄임.
@@ -209,7 +217,7 @@ if __name__ == '__main__':
     y = ys[0]
     print(y.data)
     print("\n")
-    """
+
 
     # 가변길이 인수 적용 - enhancement
     print("Multiple inputs - enhancement")
@@ -220,3 +228,45 @@ if __name__ == '__main__':
     y = add(x0, x1)
     print(y.data)
     print("\n")
+
+    # Square 클래스에도 가변길이 인수 적용
+    print("Multiple inputs application on Square class")
+    x13 = v.Variable(np.array(2.0))
+    y13 = v.Variable(np.array(3.0))
+
+    z13 = add(square(x13), square(y13))
+    z13.backward()
+
+    print(z13.data)
+    print(x13.grad)
+    print(y13.grad)
+    print("\n")
+
+    # 같은 변수 반복 사용
+    print("Repetitive usage of same variables")
+    x14 = v.Variable(np.array(3.0))
+    y14 = add(add(x14, x14), x14)
+
+    y14.backward()
+    print('x.grad', x14.grad)
+    print("\n")
+
+    x143 = v.Variable(np.array(3.0))
+    y143 = add(x143, x143)
+    y143.backward()
+    print(x143.grad)
+
+    # 누적된 미분값 초기화
+    # 28단계 - 로젠브록 함수 최적화(함수의 최솟값과 최댓값을 찾는 문제)
+    x143.cleargrad()
+    y143 = add(add(x143,x143),x143)
+    y143.backward()
+    print(x143.grad)
+    """
+    x16 = v.Variable(np.array(2.0))
+    a16 = square(x16)
+    y16 = add(square(a16), square(a16))
+    y16.backward()
+
+    print(y16.data)
+    print(x16.grad)

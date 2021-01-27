@@ -87,3 +87,20 @@ python -m unittest discover <dir_name>
   - forward mode
   - reverse mode == 역전파
 
+### ➡️ Partial Derivative
+
+Partial Derivative(편미분)은 입력 변수가 여러개인 다변수 함수에서 하나의 입력 변수에만 주목하여(다른 변수는 상수로 취급) 미분하는 것을 뜻함.
+$$
+{\partial y \over \partial x_0} = 1, {\partial y \over \partial x_1} =1
+$$
+
+### ➡️ Topology
+
+그래프의 연결된 형태를 Topology(위상)이라고 한다. 다양한 위상의 계산 그래프 미분에 대응할 수 있도록 구조 변경!
+
+
+
+복잡한 계산 그래프에서 함수의 우선순위를 정할 수 있도록 **Topology Sort(위상정렬)** 활용
+
+→ 함수의 세대(generation)를 기록하기
+
