@@ -20,7 +20,11 @@ class Variable:
 
         grad = None
         if self.grad is not None:
-            grad = np.array_str(self.grad)
+            if not isinstance(data, np.ndarray):
+                grad_arr = np.array(self.grad)
+                grad = np.array_str(grad_arr)
+            else:
+                grad = np.array_str(self.grad)
 
         creator = self.creator
         return '\n\tVaraible - data: {}, grad: {}, creator: {}'.format(data, grad, creator)
@@ -52,7 +56,20 @@ class Variable:
             # self.data가 스칼라이면 self.grad도 스칼라!
             self.grad = np.ones_like(self.data)
 
-        funcs = [self.creator]
+        # funcs = [self.creator]
+        funcs = []
+        # funcs 리스트에 같은 함수를 중복 추가하는 일을 막기 위해 set 사용
+        seen_set = set()
+        # 함수 리스트를 세대 순으로 정렬하는 역할
+        # funcs.pop()은 자동으로 세대가 가장 큰 함수를 꺼내게 된다.
+        def add_func(f):
+            if f not in seen_set:
+                funcs.append(f)
+                seen_set.add(f)
+                # 리스트의 원소를 x라고 했을 때 x.generation의 값을 키로 사용하여 정렬
+                funcs.sort(key=lambda x: x.generation)
+        add_func(self.creator)
+
         while funcs:
             # 1_함수를 가져온다.
             f = funcs.pop()
@@ -83,7 +100,8 @@ class Variable:
                     x.grad = x.grad + gx
                 if x.creator is not None:
                     # 하나 앞의 함수를 리스트에 추가한다.
-                    funcs.append(x.creator)
+                    # funcs.append(x.creator)
+                    add_func(x.creator)
 
 if __name__ == '__main__':
     data = np.array(1.0)

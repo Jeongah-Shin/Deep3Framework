@@ -250,7 +250,7 @@ if __name__ == '__main__':
     y14.backward()
     print('x.grad', x14.grad)
     print("\n")
-    """
+
     x143 = v.Variable(np.array(3.0))
     y143 = add(x143, x143)
     y143.backward()
@@ -262,3 +262,11 @@ if __name__ == '__main__':
     y143 = add(add(x143,x143),x143)
     y143.backward()
     print(x143.grad)
+    """
+    x16 = v.Variable(np.array(2.0))
+    a16 = square(x16)
+    y16 = add(square(a16), square(a16))
+    y16.backward()
+
+    print(y16.data)
+    print(x16.grad)
