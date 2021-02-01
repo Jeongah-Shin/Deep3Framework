@@ -1,6 +1,7 @@
 import variable as v
 import numpy as np
 import weakref
+import config as c
 import test as t
 
 # Function 클래스는 기반 클래스로서 모든 함수에 공통되는 기능을 구현
@@ -22,17 +23,18 @@ class Function:
         # 0차원의 x = ndarray - np.array(1.0)
         # x ** 2를 하면 np.float64 or np.float32로 리턴하는 문제 해결
         outputs = [v.Variable(as_array(y)) for y in ys]
-        # 입련 변수의 generation을 그대로 수용하되,
-        # 입력 변수가 여러개라면, 가장 큰 generation 수를 채택
-        self.generation = max([x.generation for x in inputs])
+        if c.Config.enable_backprop:
+            # 입련 변수의 generation을 그대로 수용하되,
+            # 입력 변수가 여러개라면, 가장 큰 generation 수를 채택
+            self.generation = max([x.generation for x in inputs])
 
-        for output in outputs:
-            # 출력 변수에 창조자를 설정
-            output.set_creator(self)
-        # 입력 변수를 보관해놨다가 역전파시 사용
-        self.inputs = inputs
-        # 출력도 저장
-        self.outputs = [weakref.ref(output) for output in outputs]
+            for output in outputs:
+                # 출력 변수에 창조자를 설정
+                output.set_creator(self)
+            # 입력 변수를 보관해놨다가 역전파시 사용
+            self.inputs = inputs
+            # 출력도 저장
+            self.outputs = [weakref.ref(output) for output in outputs]
 
         # outputs에 원소가 하나뿐이면 리스트가 아니라 그 원소(해당 변수)만 반환
         return outputs if len(outputs) > 1 else outputs[0]
@@ -272,10 +274,33 @@ if __name__ == '__main__':
 
     print(y16.data)
     print(x16.grad)
-    """
+
     for i in range(10):
         # 거대한 데이터
         x17 = v.Variable(np.random.randn(10000))
         # 복잡한 계산을 수행
         y17 = square(square(square(x17)))
         print(y17)
+
+    x18 = v.Variable(np.array(1.0))
+    x18_1 = v.Variable(np.array(1.0))
+    t18 = add(x18, x18_1)
+    y18 = add(t18, x18)
+    y18.backward()
+
+    print(y18.grad, t18.grad)
+    print(x18.grad, x18_1.grad)
+    """
+    print("With backprop")
+    c.Config.enable_backprop = True
+    x182 = v.Variable(np.ones((100, 100, 100)))
+    y182 = square(square(square(x182)))
+    y182.backward()
+    print(y182)
+
+    print("No backprop")
+    # 중간 계산 결과 곧바로 삭
+    c.Config.enable_backprop = False
+    x183 = v.Variable(np.ones((100,100,100)))
+    y183 = square(square(square(x183)))
+    print(y183)

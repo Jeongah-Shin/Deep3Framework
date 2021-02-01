@@ -49,7 +49,7 @@ class Variable:
             # 하나 앞 변수의 backward 메서드를 호출한다(재귀)
             x.backward()
     # 반복문을 이용한 구현
-    def backward(self):
+    def backward(self, retain_grad=False):
         if self.grad is None:
             # self.data 와 같은 형상으로 ndarray 인스턴스 생성
             # 모든 요소를 1로 채워서 돌려줌.
@@ -103,6 +103,12 @@ class Variable:
                     # 하나 앞의 함수를 리스트에 추가한다.
                     # funcs.append(x.creator)
                     add_func(x.creator)
+            # retain_grad가 True 이면, 모든 변수가 미분 결과(기울기) 유지
+            # retain_grad가 False 이면, 중간 변수의 미분값을 None으로 재설정
+            if not retain_grad:
+                for y in f.outputs:
+                    # y는 약한 참조
+                    y().grad = None
 
 if __name__ == '__main__':
     data = np.array(1.0)
