@@ -201,3 +201,28 @@ a = b = c = None
 > - 메모리가 부족해지는 시점에서 파이썬 인터프리터에 의해 자동 호출
 > - 명시적 호출 가능 (gc 모듈 임포트 후 `gc.collect()`)
 
+`weakref` **모듈의 활용**
+
+```python
+import weakref
+import numpy as np
+
+a = np.array([1,2,3])
+b = weakref.ref(a)
+
+# 약한 참조
+b
+# 참조된 데이터에의 접근
+b()
+
+# 참조 카운트 방식에 따라 ndarray를 메모리에서 삭제
+# b는 약한 참조이기 때문에 참조 카운트에 영향을 주지 않음 -> dead
+a = None
+```
+
+> python 메모리 사용량을 측정하기 위해서는 memory profiler를 활용해볼 것!
+
+
+
+### ➡️ Memory Saving Strategies
+

@@ -1,5 +1,6 @@
 import variable as v
 import numpy as np
+import weakref
 import test as t
 
 # Function 클래스는 기반 클래스로서 모든 함수에 공통되는 기능을 구현
@@ -31,7 +32,8 @@ class Function:
         # 입력 변수를 보관해놨다가 역전파시 사용
         self.inputs = inputs
         # 출력도 저장
-        self.outputs = outputs
+        self.outputs = [weakref.ref(output) for output in outputs]
+
         # outputs에 원소가 하나뿐이면 리스트가 아니라 그 원소(해당 변수)만 반환
         return outputs if len(outputs) > 1 else outputs[0]
 
@@ -262,7 +264,7 @@ if __name__ == '__main__':
     y143 = add(add(x143,x143),x143)
     y143.backward()
     print(x143.grad)
-    """
+
     x16 = v.Variable(np.array(2.0))
     a16 = square(x16)
     y16 = add(square(a16), square(a16))
@@ -270,3 +272,10 @@ if __name__ == '__main__':
 
     print(y16.data)
     print(x16.grad)
+    """
+    for i in range(10):
+        # 거대한 데이터
+        x17 = v.Variable(np.random.randn(10000))
+        # 복잡한 계산을 수행
+        y17 = square(square(square(x17)))
+        print(y17)

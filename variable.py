@@ -76,7 +76,8 @@ class Variable:
 
             # 2_ 함수의 입력과 출력을 가져온다.
             # 출력변수인 outputs에 담겨있는 미분값들을 리스트에 담기
-            gys = [output.grad for output in f.outputs]
+            # output() -> 약한 참조의 값을 가져오기 위해서 사용
+            gys = [output().grad for output in f.outputs]
             # 역전파 호출하기
             gxs = f.backward(*gys)
             # gxs가 튜플이 아니라면 튜플로 변환
