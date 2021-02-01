@@ -115,6 +115,9 @@ def exp(x):
 def add(x0, x1):
     return Add()(x0, x1)
 
+def no_grad():
+    return c.using_config('enable_backprop', False)
+
 if __name__ == '__main__':
     """
     # Function
@@ -292,15 +295,19 @@ if __name__ == '__main__':
     print(x18.grad, x18_1.grad)
     """
     print("With backprop")
-    c.Config.enable_backprop = True
-    x182 = v.Variable(np.ones((100, 100, 100)))
-    y182 = square(square(square(x182)))
-    y182.backward()
-    print(y182)
-
+    with c.using_config('enable_backprop', True):
+        x182 = v.Variable(np.ones((100, 100, 100)))
+        y182 = square(square(square(x182)))
+        y182.backward()
+        print(y182)
+    print("\n")
     print("No backprop")
-    # 중간 계산 결과 곧바로 삭
-    c.Config.enable_backprop = False
-    x183 = v.Variable(np.ones((100,100,100)))
-    y183 = square(square(square(x183)))
-    print(y183)
+    # 중간 계산 결과 곧바로 삭제
+    with c.using_config('enable_backprop', False):
+        x183 = v.Variable(np.ones((100,100,100)))
+        y183 = square(square(square(x183)))
+        print(y183)
+    with no_grad():
+        x183 = v.Variable(np.ones((100,100,100)))
+        y183 = square(square(square(x183)))
+        print(y183)

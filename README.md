@@ -240,3 +240,31 @@ a = None
    > - 여러개의 계산들을 연결해주는 `output.ser_creator(self)` 부분 제거
    >
    > → 메모리 사용량 감소
+
+   **`with` 문을 활용한 모드 전환 구현을 위해 `contextlib` 모듈 활용**
+
+   ```python
+   import contextlib
+   
+   @contextlib.contextmanager
+   def config_test():
+     # yield 전에 전처리 로직
+     print('start')
+     try:
+       yield
+     finally:
+       # yield 다음에 후처리 로직
+       print('done')
+       
+   with config_test():
+     print('process...')
+     
+   """
+   출력 결과
+   start
+   proces...
+   done
+   """
+   ```
+
+   > `with` 블록 안에서도 예외가 발생할 수 있고, 발생한 예외는 `yield`를 실행하는 코드로도 전달되므로 `try/finally`로 감싸야 한다.
