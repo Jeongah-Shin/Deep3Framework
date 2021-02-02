@@ -1,8 +1,9 @@
 import numpy as np
+import function as f
 import pprint as pp
 
 class Variable:
-    def __init__(self, data):
+    def __init__(self, data, name=None):
         # ndarray가 아닌 타입이 들어왔을 때에 대한 예외 처리
         if data is not None:
             if not isinstance(data, np.ndarray):
@@ -10,13 +11,40 @@ class Variable:
         # 아래의 두 값은 모두 numpy의 다차원 배열(ndarray)이라고 가정
         # 통상값 (data)
         self.data = data
+        self.name = name
         # 미분값 (grad), 실제로 역전파를 하면 미분값을 계산하여 대입
         self.grad = None
         self.creator = None
         # 세대 수를 기록하는 변수
         self.generation = 0
+
+    # 아래 notation으로 메서드를 인스턴스 변수처럼 사용할 수 있음
+    @property
+    def shape(self):
+        return self.data.shape
+    # 차원 수
+    @property
+    def ndim(self):
+        return self.data.ndim
+    # 원소 수
+    @property
+    def size(self):
+        return self.data.size
+    # 데이터 타입
+    # dtype을 지정하지 않은 ndarray는 보통 float64 혹은 int64로 초기화
+    # 신경망에서는 보통 float32 사용
+    @property
+    def dtype(self):
+        return self.data.dtype
+    def __len__(self):
+        return len(self.data)
+    # def __repr__(self):
+    #     if self.data  is None:
+    #         return 'variable(None)'
+    #     p = str(self.data).replace('\n', '\n' + ' ' * 9)
+    #     return 'variable(' + p + ')'
     def __str__(self):
-        data = np.array_str(self.data)
+        data = np.array_str(self.data).replace('\n', '')
 
         grad = None
         if self.grad is not None:
@@ -28,6 +56,10 @@ class Variable:
 
         creator = self.creator
         return '\n\tVaraible - data: {}, grad: {}, creator: {}'.format(data, grad, creator)
+    def __mul__(self, other):
+        return f.mul(self, other)
+    def __add__(self, other):
+        return f.add(self, other)
     def cleargrad(self):
         # 여러가지 미분을 연달아 계산할 때 똑같은 변수 재사용 가능
         self.grad = None
@@ -49,7 +81,7 @@ class Variable:
             # 하나 앞 변수의 backward 메서드를 호출한다(재귀)
             x.backward()
     # 반복문을 이용한 구현
-    def backward(self):
+    def backward(self, retain_grad=False):
         if self.grad is None:
             # self.data 와 같은 형상으로 ndarray 인스턴스 생성
             # 모든 요소를 1로 채워서 돌려줌.
@@ -76,7 +108,8 @@ class Variable:
 
             # 2_ 함수의 입력과 출력을 가져온다.
             # 출력변수인 outputs에 담겨있는 미분값들을 리스트에 담기
-            gys = [output.grad for output in f.outputs]
+            # output() -> 약한 참조의 값을 가져오기 위해서 사용
+            gys = [output().grad for output in f.outputs]
             # 역전파 호출하기
             gxs = f.backward(*gys)
             # gxs가 튜플이 아니라면 튜플로 변환
@@ -102,6 +135,12 @@ class Variable:
                     # 하나 앞의 함수를 리스트에 추가한다.
                     # funcs.append(x.creator)
                     add_func(x.creator)
+            # retain_grad가 True 이면, 모든 변수가 미분 결과(기울기) 유지
+            # retain_grad가 False 이면, 중간 변수의 미분값을 None으로 재설정
+            if not retain_grad:
+                for y in f.outputs:
+                    # y는 약한 참조
+                    y().grad = None
 
 if __name__ == '__main__':
     data = np.array(1.0)

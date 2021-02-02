@@ -1,5 +1,7 @@
 import variable as v
 import numpy as np
+import weakref
+import config as c
 import test as t
 
 # Function 클래스는 기반 클래스로서 모든 함수에 공통되는 기능을 구현
@@ -21,17 +23,19 @@ class Function:
         # 0차원의 x = ndarray - np.array(1.0)
         # x ** 2를 하면 np.float64 or np.float32로 리턴하는 문제 해결
         outputs = [v.Variable(as_array(y)) for y in ys]
-        # 입련 변수의 generation을 그대로 수용하되,
-        # 입력 변수가 여러개라면, 가장 큰 generation 수를 채택
-        self.generation = max([x.generation for x in inputs])
+        if c.Config.enable_backprop:
+            # 입련 변수의 generation을 그대로 수용하되,
+            # 입력 변수가 여러개라면, 가장 큰 generation 수를 채택
+            self.generation = max([x.generation for x in inputs])
 
-        for output in outputs:
-            # 출력 변수에 창조자를 설정
-            output.set_creator(self)
-        # 입력 변수를 보관해놨다가 역전파시 사용
-        self.inputs = inputs
-        # 출력도 저장
-        self.outputs = outputs
+            for output in outputs:
+                # 출력 변수에 창조자를 설정
+                output.set_creator(self)
+            # 입력 변수를 보관해놨다가 역전파시 사용
+            self.inputs = inputs
+            # 출력도 저장
+            self.outputs = [weakref.ref(output) for output in outputs]
+
         # outputs에 원소가 하나뿐이면 리스트가 아니라 그 원소(해당 변수)만 반환
         return outputs if len(outputs) > 1 else outputs[0]
 
@@ -46,6 +50,14 @@ def as_array(x):
     if np.isscalar(x):
         return np.array(x)
     return x
+
+class Mul(Function):
+    def forward(self, x0, x1):
+        y = x0 * x1
+        return y
+    def backward(self, gy):
+        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        return gy * x1, gy * x0
 
 class Square(Function):
     # Function 클래스를 상속하기 때문에
@@ -111,6 +123,11 @@ def exp(x):
 def add(x0, x1):
     return Add()(x0, x1)
 
+def no_grad():
+    return c.using_config('enable_backprop', False)
+
+def mul(x0, x1):
+    return Mul()(x0, x1)
 if __name__ == '__main__':
     """
     # Function
@@ -262,7 +279,7 @@ if __name__ == '__main__':
     y143 = add(add(x143,x143),x143)
     y143.backward()
     print(x143.grad)
-    """
+
     x16 = v.Variable(np.array(2.0))
     a16 = square(x16)
     y16 = add(square(a16), square(a16))
@@ -270,3 +287,63 @@ if __name__ == '__main__':
 
     print(y16.data)
     print(x16.grad)
+
+    for i in range(10):
+        # 거대한 데이터
+        x17 = v.Variable(np.random.randn(10000))
+        # 복잡한 계산을 수행
+        y17 = square(square(square(x17)))
+        print(y17)
+
+    x18 = v.Variable(np.array(1.0))
+    x18_1 = v.Variable(np.array(1.0))
+    t18 = add(x18, x18_1)
+    y18 = add(t18, x18)
+    y18.backward()
+
+    print(y18.grad, t18.grad)
+    print(x18.grad, x18_1.grad)
+
+    print("With backprop")
+    with c.using_config('enable_backprop', True):
+        x182 = v.Variable(np.ones((100, 100, 100)))
+        y182 = square(square(square(x182)))
+        y182.backward()
+        print(y182)
+    print("\n")
+    print("No backprop")
+    # 중간 계산 결과 곧바로 삭제
+    with c.using_config('enable_backprop', False):
+        x183 = v.Variable(np.ones((100,100,100)))
+        y183 = square(square(square(x183)))
+        print(y183)
+    with no_grad():
+        x183 = v.Variable(np.ones((100,100,100)))
+        y183 = square(square(square(x183)))
+        print(y183)
+
+    x19 = v.Variable(np.array([[1,2,3],[4,5,6]]))
+    print(x19.shape)
+    print(x19.ndim)
+    print(x19.size)
+    print(x19.dtype)
+    print(len(x19))
+    print(x19)
+    """
+    a20 = v.Variable(np.array(3.0))
+    b20 = v.Variable(np.array(2.0))
+    c20 = v.Variable(np.array(1.0))
+
+    # y20 = add(mul(a20,b20),c20)
+    y20 = a20 * b20 + c20
+    y20.backward()
+
+    print(y20)
+    print(a20)
+    print(b20)
+    print(c20)
+
+    a201 = v.Variable(np.array(3.0))
+    b201 = v.Variable(np.array(2.0))
+    y201 = a201 * b201
+    print(y201)
