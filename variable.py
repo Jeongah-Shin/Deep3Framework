@@ -1,4 +1,5 @@
 import numpy as np
+import function as f
 import pprint as pp
 
 class Variable:
@@ -16,6 +17,7 @@ class Variable:
         self.creator = None
         # 세대 수를 기록하는 변수
         self.generation = 0
+
     # 아래 notation으로 메서드를 인스턴스 변수처럼 사용할 수 있음
     @property
     def shape(self):
@@ -54,6 +56,10 @@ class Variable:
 
         creator = self.creator
         return '\n\tVaraible - data: {}, grad: {}, creator: {}'.format(data, grad, creator)
+    def __mul__(self, other):
+        return f.mul(self, other)
+    def __add__(self, other):
+        return f.add(self, other)
     def cleargrad(self):
         # 여러가지 미분을 연달아 계산할 때 똑같은 변수 재사용 가능
         self.grad = None

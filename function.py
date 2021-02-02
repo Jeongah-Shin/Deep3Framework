@@ -51,6 +51,14 @@ def as_array(x):
         return np.array(x)
     return x
 
+class Mul(Function):
+    def forward(self, x0, x1):
+        y = x0 * x1
+        return y
+    def backward(self, gy):
+        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        return gy * x1, gy * x0
+
 class Square(Function):
     # Function 클래스를 상속하기 때문에
     # __call__ 메서드는 그대로 계승
@@ -118,6 +126,8 @@ def add(x0, x1):
 def no_grad():
     return c.using_config('enable_backprop', False)
 
+def mul(x0, x1):
+    return Mul()(x0, x1)
 if __name__ == '__main__':
     """
     # Function
@@ -311,7 +321,7 @@ if __name__ == '__main__':
         x183 = v.Variable(np.ones((100,100,100)))
         y183 = square(square(square(x183)))
         print(y183)
-    """
+
     x19 = v.Variable(np.array([[1,2,3],[4,5,6]]))
     print(x19.shape)
     print(x19.ndim)
@@ -319,3 +329,21 @@ if __name__ == '__main__':
     print(x19.dtype)
     print(len(x19))
     print(x19)
+    """
+    a20 = v.Variable(np.array(3.0))
+    b20 = v.Variable(np.array(2.0))
+    c20 = v.Variable(np.array(1.0))
+
+    # y20 = add(mul(a20,b20),c20)
+    y20 = a20 * b20 + c20
+    y20.backward()
+
+    print(y20)
+    print(a20)
+    print(b20)
+    print(c20)
+
+    a201 = v.Variable(np.array(3.0))
+    b201 = v.Variable(np.array(2.0))
+    y201 = a201 * b201
+    print(y201)
