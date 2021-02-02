@@ -293,7 +293,7 @@ if __name__ == '__main__':
 
     print(y18.grad, t18.grad)
     print(x18.grad, x18_1.grad)
-    """
+
     print("With backprop")
     with c.using_config('enable_backprop', True):
         x182 = v.Variable(np.ones((100, 100, 100)))
@@ -311,3 +311,11 @@ if __name__ == '__main__':
         x183 = v.Variable(np.ones((100,100,100)))
         y183 = square(square(square(x183)))
         print(y183)
+    """
+    x19 = v.Variable(np.array([[1,2,3],[4,5,6]]))
+    print(x19.shape)
+    print(x19.ndim)
+    print(x19.size)
+    print(x19.dtype)
+    print(len(x19))
+    print(x19)

@@ -2,7 +2,7 @@ import numpy as np
 import pprint as pp
 
 class Variable:
-    def __init__(self, data):
+    def __init__(self, data, name=None):
         # ndarray가 아닌 타입이 들어왔을 때에 대한 예외 처리
         if data is not None:
             if not isinstance(data, np.ndarray):
@@ -10,13 +10,39 @@ class Variable:
         # 아래의 두 값은 모두 numpy의 다차원 배열(ndarray)이라고 가정
         # 통상값 (data)
         self.data = data
+        self.name = name
         # 미분값 (grad), 실제로 역전파를 하면 미분값을 계산하여 대입
         self.grad = None
         self.creator = None
         # 세대 수를 기록하는 변수
         self.generation = 0
+    # 아래 notation으로 메서드를 인스턴스 변수처럼 사용할 수 있음
+    @property
+    def shape(self):
+        return self.data.shape
+    # 차원 수
+    @property
+    def ndim(self):
+        return self.data.ndim
+    # 원소 수
+    @property
+    def size(self):
+        return self.data.size
+    # 데이터 타입
+    # dtype을 지정하지 않은 ndarray는 보통 float64 혹은 int64로 초기화
+    # 신경망에서는 보통 float32 사용
+    @property
+    def dtype(self):
+        return self.data.dtype
+    def __len__(self):
+        return len(self.data)
+    # def __repr__(self):
+    #     if self.data  is None:
+    #         return 'variable(None)'
+    #     p = str(self.data).replace('\n', '\n' + ' ' * 9)
+    #     return 'variable(' + p + ')'
     def __str__(self):
-        data = np.array_str(self.data)
+        data = np.array_str(self.data).replace('\n', '')
 
         grad = None
         if self.grad is not None:
