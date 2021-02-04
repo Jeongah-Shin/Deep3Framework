@@ -1,8 +1,10 @@
 import numpy as np
-import function as f
-import pprint as pp
+from steps import function as f
+
 
 class Variable:
+    # 연산시 좌항이 ndarray일 경우, ndarray의 __add__ 메소드가 호출되는 것을 막기 위해 priority를 높임.
+    __array_priority__ = 200
     def __init__(self, data, name=None):
         # ndarray가 아닌 타입이 들어왔을 때에 대한 예외 처리
         if data is not None:
@@ -56,10 +58,23 @@ class Variable:
 
         creator = self.creator
         return '\n\tVaraible - data: {}, grad: {}, creator: {}'.format(data, grad, creator)
-    def __mul__(self, other):
-        return f.mul(self, other)
-    def __add__(self, other):
-        return f.add(self, other)
+    """
+    Variable.__add__ = f.add
+    Variable.__radd__= f.add
+    Variable.__mul__= f.mul
+    Variable.__rmul__= f.mul
+    를 Variable class 바깥에 선언해줌으로써 아래의 메서드들의 선언을 대체할 수 있음.
+    """
+    # 피연산자가 좌항일 때
+    # def __mul__(self, other):
+    #     return f.mul(self, other)
+    # 피연산자가 우항일 때
+    # def __rmul__(self, other):
+    #     return f.mul(self, other)
+    # def __add__(self, other):
+    #     return f.add(self, other)
+    # def __radd__(self, other):
+    #     return f.add(self, other)
     def cleargrad(self):
         # 여러가지 미분을 연달아 계산할 때 똑같은 변수 재사용 가능
         self.grad = None
@@ -141,6 +156,17 @@ class Variable:
                 for y in f.outputs:
                     # y는 약한 참조
                     y().grad = None
+
+Variable.__add__ = f.add
+Variable.__radd__= f.add
+Variable.__mul__= f.mul
+Variable.__rmul__= f.mul
+Variable.__neg__ = f.neg
+Variable.__sub__ = f.sub
+Variable.__rsub__ = f.rsub
+Variable.__truediv__ = f.div
+Variable.__rtruediv__ = f.rdiv
+Variable.__pow__ = f.pow
 
 if __name__ == '__main__':
     data = np.array(1.0)
