@@ -14,3 +14,34 @@ y.backward()
 
 print(y)
 print(x.grad)
+
+def sphere(x, y):
+    z = x ** 2 + y ** 2
+    return z
+
+x_s = Variable(np.array(1.0))
+y_s = Variable(np.array(1.0))
+z_s = sphere(x_s, y_s)
+z_s.backward()
+print(x_s.grad, y_s.grad)
+
+def matyas(x, y):
+    z = 0.26 * (x ** 2 + y ** 2) - 0.48 * x * y
+    return z
+
+x_m = Variable(np.array(1.0))
+y_m = Variable(np.array(1.0))
+z_m = matyas(x_m, y_m)
+z_m.backward()
+print(x_m.grad, y_m.grad)
+
+def goldstein(x, y):
+    z = (1 + (x + y + 1) ** 2 * (19 - 14*x + 3*x**2 - 14*y + 6*x*y + 3*y**2)) * \
+        (30 + (2*x - 3*y)**2 * (18 - 32*x + 12*x**2 + 48*y - 36*x*y + 27*y**2))
+    return z
+
+x_g = Variable(np.array(1.0))
+y_g = Variable(np.array(1.0))
+z_g = goldstein(x_g, y_g)
+z_g.backward()
+print(x_g.grad, y_g.grad)
