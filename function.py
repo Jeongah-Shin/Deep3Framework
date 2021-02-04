@@ -11,6 +11,9 @@ class Function:
     # input 은 Variable 인스턴스라고 가정
     # * notation을 통해 가변 길이 인수를 건네 함수를 호출
     def __call__(self, *inputs):
+        # Variable이 아닌 input이 들어왔을 때, Variable로 매핑
+        # ndarray, int, float 등이 input으로 들어오는 경우를 대비
+        inputs = [as_variable(x) for x in inputs]
         # 데이터 꺼내기, List Comprehension(리스트 내포) 사용
         xs = [x.data for x in inputs]
         # *xs ---> List Unpack(리스트 언팩)
@@ -91,6 +94,19 @@ class Add(Function):
         # 출력쪽에서 전해지는 미분값에 1을 곱한 값 == 그대로 흘려보내는 것
         return gy, gy
 
+class Neg(Function):
+    def forward(self, x):
+        return -x
+    def backward(self, gy):
+        return -gy
+
+class Sub(Function):
+    def forward(self, x0, x1):
+        y = x0 - x1
+        return y
+    def backward(self, gy):
+        return gy, -gy
+
 # 미세한 차리를 이용하여 함수의 변화량을 구하는 방법을 '수치 미분(numercial differentiation)'이라고 한다.
 # 아무리 작은 값을 사용하여도 오차가 발생 할 수 있음 -> '중앙 차분(centered difference)'을 통해 근사 오차를 줄임.
 
@@ -121,13 +137,40 @@ def exp(x):
     return Square()(x)
 
 def add(x0, x1):
+    x1 = as_variable(x1)
     return Add()(x0, x1)
 
 def no_grad():
     return c.using_config('enable_backprop', False)
 
 def mul(x0, x1):
+    x1 = as_variable(x1)
     return Mul()(x0, x1)
+
+def neg(x):
+    return Neg()(x)
+
+def sub(x0, x1):
+    x1 = as_array(x1)
+    return Sub()(x0, x1)
+
+def rsub(x0, x1):
+    x1 = as_array(x1)
+    return Sub()(x1, x0)
+
+def as_variable(obj):
+    if isinstance(obj, v.Variable):
+        return obj
+    return v.Variable(obj)
+
+v.Variable.__add__ = add
+v.Variable.__radd__= add
+v.Variable.__mul__= mul
+v.Variable.__rmul__= mul
+v.Variable.__neg__ = neg
+v.Variable.__sub__ = sub
+v.Variable.__rsub__ = rsub
+
 if __name__ == '__main__':
     """
     # Function
@@ -329,7 +372,7 @@ if __name__ == '__main__':
     print(x19.dtype)
     print(len(x19))
     print(x19)
-    """
+
     a20 = v.Variable(np.array(3.0))
     b20 = v.Variable(np.array(2.0))
     c20 = v.Variable(np.array(1.0))
@@ -347,3 +390,7 @@ if __name__ == '__main__':
     b201 = v.Variable(np.array(2.0))
     y201 = a201 * b201
     print(y201)
+    """
+    x21 = v.Variable(np.array(2.0))
+    y21 = x21 + np.array(3.0)
+    print(y21)
