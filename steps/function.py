@@ -1,8 +1,7 @@
-import variable as v
 import numpy as np
 import weakref
-import config as c
-import test as t
+from steps import config as c, variable as v
+
 
 # Function 클래스는 기반 클래스로서 모든 함수에 공통되는 기능을 구현
 # 구체적인 함수는 Function 클래스를 상속한 클래스에서 구현
@@ -160,14 +159,14 @@ def exp(x):
     return Square()(x)
 
 def add(x0, x1):
-    x1 = as_variable(x1)
+    x1 = as_array(x1)
     return Add()(x0, x1)
 
 def no_grad():
     return c.using_config('enable_backprop', False)
 
 def mul(x0, x1):
-    x1 = as_variable(x1)
+    x1 = as_array(x1)
     return Mul()(x0, x1)
 
 def neg(x):

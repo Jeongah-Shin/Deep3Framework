@@ -1,6 +1,6 @@
 import numpy as np
-import function as f
-import pprint as pp
+from steps import function as f
+
 
 class Variable:
     # 연산시 좌항이 ndarray일 경우, ndarray의 __add__ 메소드가 호출되는 것을 막기 위해 priority를 높임.
