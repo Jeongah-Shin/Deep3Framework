@@ -1,10 +1,10 @@
 import unittest
 import numpy as np
-import variable as v
-import function as f
+from steps import function as f, variable as v
+
 
 class SquareTest(unittest.TestCase):
-    # python -m unittest test.py
+    # python -m unittest unittest.py
     # 아니면 unit test를 수행하고 싶은 클래스에서 test.unittest.main()
     def test_forward(self):
         x = v.Variable(np.array(2.0))
