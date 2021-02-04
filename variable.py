@@ -157,6 +157,17 @@ class Variable:
                     # y는 약한 참조
                     y().grad = None
 
+Variable.__add__ = f.add
+Variable.__radd__= f.add
+Variable.__mul__= f.mul
+Variable.__rmul__= f.mul
+Variable.__neg__ = f.neg
+Variable.__sub__ = f.sub
+Variable.__rsub__ = f.rsub
+Variable.__truediv__ = f.div
+Variable.__rtruediv__ = f.rdiv
+Variable.__pow__ = f.pow
+
 if __name__ == '__main__':
     data = np.array(1.0)
     x = Variable(data)

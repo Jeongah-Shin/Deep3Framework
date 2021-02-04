@@ -107,6 +107,29 @@ class Sub(Function):
     def backward(self, gy):
         return gy, -gy
 
+class Div(Function):
+    def forward(self, x0, x1):
+        y = x0 / x1
+        return y
+    def backward(self, gy):
+        x0, x1 = self.inputs[0].data, self.inputs[1].data
+        gx0 = gy / x1
+        gx1 = gy * (-x0 / x1 ** 2)
+        return gx0, gx1
+
+class Pow(Function):
+    # c는 상수로 취급하여 따로 미분 계산 X
+    def __init__(self, c):
+        self.c = c
+    def forward(self, x):
+        y = x ** self.c
+        return y
+    def backward(self, gy):
+        x = self.inputs[0].data
+        c = self.c
+        gx = c * x ** (c-1) * gy
+        return gx
+
 # 미세한 차리를 이용하여 함수의 변화량을 구하는 방법을 '수치 미분(numercial differentiation)'이라고 한다.
 # 아무리 작은 값을 사용하여도 오차가 발생 할 수 있음 -> '중앙 차분(centered difference)'을 통해 근사 오차를 줄임.
 
@@ -157,19 +180,19 @@ def sub(x0, x1):
 def rsub(x0, x1):
     x1 = as_array(x1)
     return Sub()(x1, x0)
+def div(x0, x1):
+    x1 = as_array(x1)
+    return Div()(x0, x1)
+def rdiv(x0, x1):
+    x1 = as_array(x1)
+    return Div()(x1, x0)
+def pow(x, c):
+    return Pow(c)(x)
 
 def as_variable(obj):
     if isinstance(obj, v.Variable):
         return obj
     return v.Variable(obj)
-
-v.Variable.__add__ = add
-v.Variable.__radd__= add
-v.Variable.__mul__= mul
-v.Variable.__rmul__= mul
-v.Variable.__neg__ = neg
-v.Variable.__sub__ = sub
-v.Variable.__rsub__ = rsub
 
 if __name__ == '__main__':
     """
@@ -394,3 +417,11 @@ if __name__ == '__main__':
     x21 = v.Variable(np.array(2.0))
     y21 = x21 + np.array(3.0)
     print(y21)
+
+    x22 = v.Variable(np.array(2.0))
+    y22_1 = 2.0 - x22
+    y22_2 = x22 - 1.0
+    y22_3 = x22 ** 3
+    print(y22_1)
+    print(y22_2)
+    print(y22_3)
