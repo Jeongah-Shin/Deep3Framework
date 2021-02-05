@@ -1,3 +1,5 @@
+import os
+import subprocess
 from deep3framework import Variable
 import numpy as np
 
@@ -46,7 +48,27 @@ def get_dot_graph(output, verbose=True):
 
             if x.creator is not None:
                 add_func(x.creator)
-    return 'diagraph g {\n' + txt + '}'
+    return 'digraph g {\n' + txt + '}'
+
+def plot_dot_graph(output, verbose =True, to_file='f.png'):
+    dot_graph = get_dot_graph(output, verbose)
+
+    # 1. dot 데이터를 파일에 저장
+    # '~' 을 현재 사용자 홈 디렉토리의 절대경로로 대체
+    tmp_dir = os.path.join(os.path.expanduser('~'), '.deep3frame')
+    if not os.path.exists(tmp_dir):
+        # ~/.deep3frame 디렉터리가 없다면 새로 생성
+        os.mkdir(tmp_dir)
+    graph_path = os.path.join(tmp_dir, 'tmp_graph.dot')
+
+    with open(graph_path, 'w') as f:
+        f.write(dot_graph)
+
+    # 2. dot 명령어 호출
+    extension = os.path.splitext(to_file)[1][1:] # 확장자(png, pdf 등)
+    cmd = 'dot {} -T {} -o {}'.format(graph_path, extension, to_file)
+    # 파이썬에서 외부 프로그램을 호출하기 위해 subprocess.run() 함수 사용
+    subprocess.run(cmd, shell=True)
 
 
 if __name__ == '__main__':
