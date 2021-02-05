@@ -1,6 +1,6 @@
 import numpy as np
 import weakref
-from steps import config as c, variable as v
+from steps.first_half import config as c, variable as v
 
 
 # Function 클래스는 기반 클래스로서 모든 함수에 공통되는 기능을 구현

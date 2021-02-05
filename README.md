@@ -441,3 +441,21 @@ $$
 dot dot_examples/sample.dot -T png -o dot_examples/sample.png
 ```
 
+### ➡️ Taylor Series
+
+Sin 함수의 미분을 Taylor Series(테일러 급수)를 통해 구해보기
+
+> **n차 미분의 예시**
+>
+> - 1차 미분 : 위치의 미분(변화) == 속도
+> - 2차 미분: 위치의 1차 미분 속도의 미분(변화) == 가속도
+
+![T_{f}(x)=\sum _{{n=0}}^{\infty }{\frac  {f^{{(n)}}(a)}{n!}}\,(x-a)^{n}=f(a)+f'(a)(x-a)+{\frac  12}f''(a)(x-a)^{2}+{\frac  16}f'''(a)(x-a)^{3}+\cdots ](https://wikimedia.org/api/rest_v1/media/math/render/svg/436956d0b199f0699ddcd739eb4e421b45ca8133)
+
+a = 0 일 때의 테일러 급수를 Maclaurin's series(매클로린 전개)라고 한다.
+
+
+
+Threshold = 0.0001일 때 보다 Threshold = 1e-150 일 때의 계산 그래프 복잡성(깊이)이 기하급수적으로 증가했다.
+
+→ 함수의 근사를 정확히 하기 위해 for 문의 반복횟수가 늘어났기 때문

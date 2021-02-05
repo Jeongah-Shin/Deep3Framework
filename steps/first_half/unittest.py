@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from steps import function as f, variable as v
+from steps.first_half import function as f, variable as v
 
 
 class SquareTest(unittest.TestCase):
