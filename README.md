@@ -429,3 +429,15 @@ $$
 
     → 성능과 사용성이라는 두 마리의 토끼를 모두 잡을 수 있다!
 
+### ➡️ Higher order derivative
+
+> '고계 도함수', '고계 미분' 이라고도 부르지만 지금부터 '고차 미분'이라는 용어로 통일
+
+고차 미분이란 어떤 함수를 2번 이상 미분한 것 == 역전파에 대한 역전파
+
+**Graphviz dot 파일 시동**
+
+```python
+dot dot_examples/sample.dot -T png -o dot_examples/sample.png
+```
+
