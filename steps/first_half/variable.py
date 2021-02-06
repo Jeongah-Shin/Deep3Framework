@@ -1,5 +1,5 @@
 import numpy as np
-from steps import function as f
+from steps.first_half import function as f
 
 
 class Variable:
