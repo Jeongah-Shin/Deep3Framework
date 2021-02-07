@@ -44,15 +44,11 @@ class Variable:
     def __len__(self):
         return len(self.data)
     def __str__(self):
-        data = np.array_str(self.data).replace('\n', '')
-
+        # data = np.array_str(self.data).replace('\n', '')
+        data = self.data
         grad = None
         if self.grad is not None:
-            if not isinstance(data, np.ndarray):
-                grad_arr = np.array(self.grad)
-                grad = np.array_str(grad_arr)
-            else:
-                grad = np.array_str(self.grad)
+            grad = self.grad
 
         creator = self.creator
         return '\n\tVaraible - data: {}, grad: {}, creator: {}'.format(data, grad, creator)
