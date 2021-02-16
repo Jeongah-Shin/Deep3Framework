@@ -511,9 +511,11 @@ y = tanh(x) = {{e^x - e^{-x}}\over{e^x + e^{-x}}}
 $$
 
 **tanh의 미분을 계산하기 위해 아래의 미분 공식 활용**
+
 $$
 \{{f(x)\over g(x)}\}' = {{f'(x)g(x) - f(x)g(x)'} \over {g(x)}^2}
 $$
+
 **미분 결과**
 $$
 {{\partial tanh(x)}\over \partial x} = {1-y^2}
@@ -534,3 +536,53 @@ WGAN-GP, MAML, TRPO(헤세 행렬과 벡터의 곱을 구할 때 계산 효율�
 **Hessian-vector product (헤세 행렬과 벡터의 곱)**
 
 헤세 행렬과 벡터의 곱의 '결과'만 필요하다면 double backprop을 사용하여 효울적으로 구할 수 있다.
+
+### ➡️ Tensor
+
+> Numpy에는 `broadcast(브로드캐스트)`라는 기능이 있어서 a+b (a,b 모두 다차원 텐서)를 계산할 때 두 텐서의 형상이 맞지 않는다면 자동으로 데이터를 복사하여 같은 형상의 텐서로 변환
+
+**✨ Jacobian matrix (야코비 행렬)**
+
+y와 x가 모두 벡터일 때 그 미분은 행렬의 형태가 되고, 이를 야코비 행렬이라고 부른다.
+
+![{\displaystyle J(\mathbf {f} )(\mathbf {a} )={\begin{pmatrix}(\partial f_{1}/\partial x_{1})(\mathbf {a} )&(\partial f_{1}/\partial x_{2})(\mathbf {a} )&\cdots &(\partial f_{1}/\partial x_{n})(\mathbf {a} )\\(\partial f_{2}/\partial x_{1})(\mathbf {a} )&(\partial f_{2}/\partial x_{2})(\mathbf {a} )&\cdots &(\partial f_{2}/\partial x_{n})(\mathbf {a} )\\\vdots &\vdots &&\vdots \\(\partial f_{m}/\partial x_{1})(\mathbf {a} )&(\partial f_{m}/\partial x_{2})(\mathbf {a} )&\cdots &(\partial f_{m}/\partial x_{n})(\mathbf {a} )\end{pmatrix}}={\begin{pmatrix}\nabla f_{1}(\mathbf {a} )\\\nabla f_{2}(\mathbf {a} )\\\vdots \\\nabla f_{m}(\mathbf {a} )\end{pmatrix}}={\begin{pmatrix}(\partial \mathbf {f} /\partial x_{1})(\mathbf {a} )&(\partial \mathbf {f} /\partial x_{2})(\mathbf {a} )&\cdots &(\partial \mathbf {f} /\partial x_{n})(\mathbf {a} )\end{pmatrix}}\in \operatorname {Mat} (m,n;\mathbb {R} )}](https://wikimedia.org/api/rest_v1/media/math/render/svg/d1d25272f7924696d5d69ad8d9f311c3026e1eee)
+
+만약 y 값이 스칼라라면 1xn의 야코비 행렬을 생성하며 이는 행 벡터(가로로 나열된 벡터)이다.
+
+
+
+**🌈 합성 함수**
+
+
+$$
+y = F(x) = C(B(A(x)))
+$$
+일 때, y의 x에 대한 미분은 연쇄 법칙에 의해 아래와 같이 표현할 수 있다.
+$$
+{\partial y \over \partial \pmb x} = {\partial y \over \partial \pmb b}{\partial \pmb b \over \partial \pmb a}{\partial \pmb a \over \partial \pmb x}
+$$
+
+>  세가지 항들 중 앞에 두 항은 야코비 행렬이다.
+
+위의 행렬 곱을 계산하는 순서는 두가지가 있는데,
+
+- forward 모드 - 입력 쪽에서 출력 쪽으로 괄호를 치고 계산
+
+  - 행렬 곱의 결과가 다시 행렬이 됨.
+
+- reverse 모드 - 출력 쪽에서 입력 쪽으로 괄호를 치고 계산
+
+  - y가 스칼라값이므로 중간의 행렬 곱의 결과는 모두 행 벡터
+
+  - 수식상으로 벡터와 야코비 행렬의 곱으로 구성
+
+    - 벡터(1) x 야코비 행렬(1) = 벡터(2), 벡터(2) x 야코비 행렬(2)
+
+    🙌 이처럼 역전파는 각 함수에 대해 벡터와 야코비 행렬을 계산한다.
+
+    더불어, 야코비 행렬을 구하여 '행렬의 곱'을 계산할 필요가 없다. 원소별 연산의 야코비 행렬은 대각 행렬(대각 성분 외에는 모두 0)이 되기 떄문!
+
+    최종 결과는 원소별 미분을 계산한 다음 그 결괏값을 원소별로 곱하면 얻을 수 있다.
+
+→ 결과적으로 forward 모드는 nxn 행렬을 전파, reverse 모드는 n개의 벡터를 전파(행 벡터) 하게 되어 역전파 쪽의 계산 효율이 더 좋다!
+
