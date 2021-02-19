@@ -1,6 +1,7 @@
 import contextlib
 import weakref
 import numpy as np
+import deep3framework
 
 class Config:
     enable_backprop = True
@@ -57,6 +58,12 @@ class Variable:
     def set_creator(self, func):
         self.creator = func
         self.generation = func.generation + 1
+    # *shape - 가변 길이 인수 지원
+    def reshape(self, *shape):
+        # 지정된 *shape Tuple 혹은 List 일때
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
+        return deep3framework.functions.reshape(self, shape)
     def backward(self, retain_grad=False, create_graph=False):
         if self.grad is None:
             # self.grad = np.ones_like(self.data)
