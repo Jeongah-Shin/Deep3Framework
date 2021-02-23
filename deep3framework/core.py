@@ -64,6 +64,13 @@ class Variable:
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
             shape = shape[0]
         return deep3framework.functions.reshape(self, shape)
+    def transpose(self):
+        return deep3framework.functions.transpose(self)
+    # 인스턴스 변수로 활용
+    # y = x.T
+    @property
+    def T(self):
+        return deep3framework.functions.transpose(self)
     def backward(self, retain_grad=False, create_graph=False):
         if self.grad is None:
             # self.grad = np.ones_like(self.data)

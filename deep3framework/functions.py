@@ -40,6 +40,14 @@ class Reshape(Function):
     def backward(self, gy):
         return reshape(gy, self.x_shape)
 
+class Transpose(Function):
+    def forward(self, x):
+        y = np.transpose(x)
+        return y
+    def backward(self, gy):
+        gx = transpose(gy)
+        return gx
+
 def cos(x):
     return Cos()(x)
 
@@ -56,3 +64,7 @@ def reshape(x, shape):
         # 언제나 Variable 인스턴스를 반환하는 것을 보장
         return as_variable(x)
     return Reshape(shape)(x)
+
+def transpose(x):
+    return Transpose()(x)
+
