@@ -616,3 +616,19 @@ print(y)
   - 출력 쪽에서 기울기를 전달, `x.data.shape == x.grad.shape` 하도록!
   - (6, )인 형상을 (2, 3)로 변환 → 입력 변수 쪽의 형상에 맞게 변환
 
+### ➡️ Transpose
+
+**✨** `np.transpose` **의 범용적인 활용**
+
+ → 축 데이터를 교환할 수 있도록!
+
+```python
+import numpy as np
+
+A, B, C, D = 1, 2, 3, 4
+x = np.random.rand(A, B, C, D)
+# 축의 데이터 순서 바꾸기
+# 인수가 None(default) 일 때는 축이 역순으로 정렬
+y = x.transpose(1, 0, 3, 2)
+```
+

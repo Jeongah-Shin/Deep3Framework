@@ -64,8 +64,13 @@ class Variable:
         if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
             shape = shape[0]
         return deep3framework.functions.reshape(self, shape)
-    def transpose(self):
-        return deep3framework.functions.transpose(self)
+    def transpose(self, *axes):
+        if len(axes) == 0:
+            axes = None
+        elif len(axes) == 1:
+            if isinstance(axes[0], (tuple,list)) or axes[0] is None:
+                axes = axes[0]
+        return deep3framework.functions.transpose(self, axes)
     # 인스턴스 변수로 활용
     # y = x.T
     @property
