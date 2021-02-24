@@ -52,6 +52,21 @@ class Transpose(Function):
         axes_len = len(self.axes)
         inv_axes = tuple(np.argsort([ax % axes_len for ax in self.axes]))
         return transpose(gy, inv_axes)
+class Sum(Function):
+    def __init__(self, axis, keepdims):
+        self.axis = axis
+        self.keepdims = keepdims
+
+    def forward(self, x):
+        self.x_shape = x.shape
+        y = x.sum(axis=self.axis, keepdims=self.keepdims)
+        return y
+    def backward(self, gy):
+        # gy의 형상을 미세하게 조정
+        # axis, keepdims를 활용함으로써 기울기의 형상을 변환하는 경우가 생기기 때문에 그에 대응
+        gy = utils.reshape_sum_backward(gy, self.x_shape, self.axis, self.keepdims)
+        gx = broadcast_to(gy, self.x_shape)
+        return gx
 
 def cos(x):
     return Cos()(x)
@@ -72,4 +87,7 @@ def reshape(x, shape):
 
 def transpose(x, axes=None):
     return Transpose(axes)(x)
+
+def sum(x, axis=None, keepdims=False):
+    return Sum(axis, keepdims)(x)
 

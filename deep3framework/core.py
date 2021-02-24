@@ -71,6 +71,8 @@ class Variable:
             if isinstance(axes[0], (tuple,list)) or axes[0] is None:
                 axes = axes[0]
         return deep3framework.functions.transpose(self, axes)
+    def sum(self, axis=None, keepdims=False):
+        return deep3framework.functions.sum(self, axis, keepdims)
     # 인스턴스 변수로 활용
     # y = x.T
     @property
