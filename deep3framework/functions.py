@@ -61,11 +61,25 @@ class Sum(Function):
         self.x_shape = x.shape
         y = x.sum(axis=self.axis, keepdims=self.keepdims)
         return y
+
     def backward(self, gy):
         # gy의 형상을 미세하게 조정
         # axis, keepdims를 활용함으로써 기울기의 형상을 변환하는 경우가 생기기 때문에 그에 대응
         gy = utils.reshape_sum_backward(gy, self.x_shape, self.axis, self.keepdims)
         gx = broadcast_to(gy, self.x_shape)
+        return gx
+
+class BroadcastTo(Function):
+    def __init__(self, shape):
+        self.shape = shape
+
+    def forward(self, x):
+        self.x_shape = x.shape
+        y = np.broadcast_to(x, self.shape)
+        return y
+
+    def backward(self, gy):
+        gx = sum_to(gy, self.x_shape)
         return gx
 
 def cos(x):
@@ -91,3 +105,7 @@ def transpose(x, axes=None):
 def sum(x, axis=None, keepdims=False):
     return Sum(axis, keepdims)(x)
 
+def broadcast_to(x, shape):
+    if x.shape == shape:
+        return as_variable(x)
+    return BroadcastTo(shape)(x)
