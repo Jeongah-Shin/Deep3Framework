@@ -140,6 +140,9 @@ class Function:
     def backward(self, gy):
         raise NotImplementedError()
 
+class Parameter(Variable):
+    pass
+
 def as_array(x):
     if np.isscalar(x):
         return np.array(x)
