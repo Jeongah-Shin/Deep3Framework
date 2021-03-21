@@ -3,6 +3,15 @@ from deep3framework.core import Function
 from deep3framework.core import as_variable
 from deep3framework import utils
 
+class Exp(Function):
+    def forward(self, x):
+        y = np.exp(x)
+        return y
+    def backward(self, gy):
+        x = self.input.data
+        gx = np.exp(x) * gy
+        return gx
+
 class Sin(Function):
     def forward(self, x):
         y = np.sin(x)
@@ -116,7 +125,8 @@ class MeanSquaredError(Function):
         gx0 = gy * diff * (2. / len(diff))
         gx1 = -gx0
         return gx0, gx1
-
+def exp(x):
+    return Exp()(x)
 def cos(x):
     return Cos()(x)
 
@@ -155,3 +165,16 @@ def matmul(x, W):
 
 def mean_squared_error(x0, x1):
     return MeanSquaredError()(x0, x1)
+
+def linear_simple(x, W, b=None):
+    t = matmul(x, W)
+    if b is None:
+        return t
+    y = t + b
+    t.data = None # t의 데이터 삭제
+    return y
+
+def sigmoid_simple(x):
+    x = as_variable(x)
+    y = 1 / (1 + exp(-x))
+    return y
