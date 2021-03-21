@@ -13,7 +13,7 @@ class Layer:
         super().__setattr__(name, value)
     def __call__(self, *inputs):
         outputs = self.forward(*inputs)
-        if not isinstance(outputs, tuple)
+        if not isinstance(outputs, tuple):
             outputs = (outputs, )
         self.inputs = [weakref.ref(x) for x in inputs]
         self.outputs = [weakref.ref(y) for y in outputs]
