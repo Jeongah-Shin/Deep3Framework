@@ -645,3 +645,20 @@ y = x.transpose(1, 0, 3, 2)
     ***ex)*** (0,2) 가 인수로 들어오면 axis=0과 axis=2일 때 모두에 대해 합계를 계산
 
 - `np.sum` 은 keepdims 인수를 통해 입력과 출력의 차원 수(축 수)를 똑같이 유지할지 정함. 
+
+### ➡️ Dot product of Vector 
+
+- 벡터 a, b 가 있다고 가정할 때, 
+  $$
+  \pmb a = (a_1, ..., a_n) \\
+  \pmb b = (b_1, ..., b_n)
+  $$
+
+  > 통상 스칼라는 a, b 보통의 글꼴로, 벡터나 행렬은 **a, b** 처럼 굵게 표시!
+
+  $$
+  \pmb a\pmb b = a_1b_1 + a_2b_2 + ... +a_nb_n
+  $$
+
+### ➡️ Dot product of Vector
+

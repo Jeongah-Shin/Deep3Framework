@@ -16,5 +16,6 @@ else:
     from deep3framework.core import as_array
     from deep3framework.core import as_variable
     from deep3framework.core import setup_variable
+    from deep3framework.layers import Layer
 
 setup_variable()
